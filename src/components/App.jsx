@@ -19,20 +19,19 @@ export class App extends Component {
     isOpenModal: false,
     modalData: null,
     error: null,
-  }
-
+  };
 
   componentDidUpdate(_, prevState) {
-    if (prevState.searchWord !== this.state.searchWord) {
-      this.fetchImagesFirstTime();
-      this.setState({
-        page: 1
-      })
+    if (prevState.searchWord !== this.state.searchWord || prevState.page !== this.state.page) {
+      this.fetchImgs();
     }
-    if (prevState.page !== this.state.page) {
-      this.fetchImagesLoadMore();
+    if (this.state.page > 1) {
+      window.scrollBy({
+    top: 500,
+    behavior: "smooth",
+    })
     }
-  }
+  };
 
   handleKeyDown = e => {
       if (e.code === 'Escape') {
@@ -57,51 +56,34 @@ export class App extends Component {
   onSubmit = searchWord =>
     this.setState({
       searchWord: searchWord,
+      page: 1,
+      images: null,
     });
   
-  fetchImagesLoadMore = async () => {
-    try {
-      this.setState({
-      isLoading: true,
-      isShown: false,
-    });
-      const result = await fetchImages(this.state.searchWord, this.state.page)
-      this.setState(prevState => ({
-      images: [...prevState.images, ...result.hits],
-      isShown: true,
-    }));
-    if (result.hits.length <= 11) {
-      this.setState({
-        isShown: false,
-      })
-    }
-      window.scrollBy({
-    top: 520,
-    behavior: "smooth",
-    })
-    } catch (error) {
-      this.setState({ error: error.message });
-    } finally {
-      this.setState({
-        isLoading: false,
-      });
-    }
-  }
-
-  fetchImagesFirstTime = async () => {
+  fetchImgs = async () => {
     try {
       this.setState({
         isLoading: true,
+        isShown: false,
       });
-      const result = await fetchImages(this.state.searchWord, this.state.page);
-      
-      this.setState({
-        images: result.hits,
-      });
-      if (result.hits.length >= 12) {
+      const result = await fetchImages(this.state.searchWord, this.state.page)
+     
+      if (this.state.images !== null) {
+        this.setState(prevState => ({
+          images: [...prevState.images, ...result.hits],
+          isShown: true,
+        }))
+      } else {
         this.setState({
-        isShown: true,
-      });
+          images: [...result.hits],
+          isShown: true,
+        });
+      }
+      
+      if (result.hits.length <= 11) {
+        this.setState({
+          isShown: false,
+        })
       }
     } catch (error) {
       this.setState({ error: error.message });
@@ -110,13 +92,13 @@ export class App extends Component {
         isLoading: false,
       });
     }
-  }
+  };
   
   onLoadMoreHandler = () => {
     this.setState(prevState => ({
       page: prevState.page + 1,
     }));
-  }
+  };
 
   render() {
     return (
@@ -141,4 +123,6 @@ export class App extends Component {
       </StyledApp>
     )
   }
-}
+};
+
+
