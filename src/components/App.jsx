@@ -40,7 +40,7 @@ export class App extends Component {
       }
   };
   
-openModal = data => {
+  openModal = data => {
     this.setState({
       isOpenModal: true,
       modalData: data,
@@ -65,11 +65,8 @@ openModal = data => {
       isLoading: true,
       isShown: false,
     });
-    
-      console.log(this.state.page);
-      
       const result = await fetchImages(this.state.searchWord, this.state.page)
-    this.setState(prevState => ({
+      this.setState(prevState => ({
       images: [...prevState.images, ...result.hits],
       isShown: true,
     }));
@@ -78,6 +75,10 @@ openModal = data => {
         isShown: false,
       })
     }
+      window.scrollBy({
+    top: 520,
+    behavior: "smooth",
+    })
     } catch (error) {
       this.setState({ error: error.message });
     } finally {
@@ -85,7 +86,6 @@ openModal = data => {
         isLoading: false,
       });
     }
-    
   }
 
   fetchImagesFirstTime = async () => {
